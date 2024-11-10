@@ -1,0 +1,158 @@
+﻿@model EmpCrud.Models.EmployeeViewModel
+
+@* @{
+    ViewData["Title"] = "Create";
+} *@
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Add Employee</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Phone" class="control-label"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DateOfBirth" class="control-label"></label>
+                        <input asp-for="DateOfBirth" type="date" class="form-control" max="@DateTime.Now.ToString("dd/mm/yyyy")" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Gender" class="control-label">Gender:</label>
+                        <div>
+                            &emsp;<input type="radio" asp-for="Gender" value="Male" />
+                            <label>Male</label>&emsp;
+                            <br />
+                            &emsp;<input type="radio" asp-for="Gender" value="Female" />
+                            <label>Female</label>&emsp;
+                            <br />
+                            &emsp;<input type="radio" asp-for="Gender" value="Other" />
+                            <label>Other</label>
+                        </div>
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label asp-for="HobbyName" class="control-label">Hobbies:</label><br />
+                        @foreach (var item in Model.HobbiesCB)
+                        {
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   value="@item.HobbyValue"
+                                   id="Hobby_@item.HobbyValue"
+                                   name="EmpHobbies"
+                                   checked="@item.IsChecked"
+                            @* asp-for="" *@ />
+                            <label class="form-check-label" for="">@item.HobbyName</label>
+
+                            @* @:&emsp;<input type="checkbox" name="SelectedHobbies"  id="Hobby_@item.Value" />
+                        <label asp-for="Hobby">@item.Text</label><br /> *@
+
+                            @* @:&emsp;<input type="checkbox" value="@item.Value"/> *@
+
+                            @* <input type="checkbox" name="SelectedHobbies" value="@item.Value" id="Hobby_@item.Value" />
+                        <label for="Hobby_@item.Value">@item.Text</label> *@
+                        }
+
+                        <span asp-validation-for="Hobbies" class="text-danger"></span>
+                        @* @foreach (var item in Model.HobbiesCB)
+                        {
+                            <div class="form-check">
+                                <input type="checkbox"
+                                       asp-for="HobbiesCB[@Model.HobbiesCB.IndexOf(item)].IsChecked"
+                                       value="true"
+                                       name="EmpHobbies"
+                                       class="form-check-input" />
+                                <label class="form-check-label">@item.HobbyName</label>
+                                <input type="hidden" asp-for="HobbiesCB[@Model.HobbiesCB.IndexOf(item)].HobbyId" />
+                            </div>
+                        } *@
+                    </div>
+
+
+                    <br />
+                    <div class="form-group">
+                        <label asp-for="CountryId" class="control-label"></label>
+                        <select id="CountryId" name="CountryId" class="form-control" onchange="getStatesByCountry()" required>
+                            <option value="">-- Select Country --</option>
+                            @foreach (var country in Model.Countries)
+                            {
+                                <option value="@country.Value">@country.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CountryId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="States" class="Conrol-label"></label>
+                        <select id="StateId" name="StateId" class="form-control" onchange="getCitiesByState()" required>
+                            <option value="">-- Select State --</option>
+                            @* @foreach(var state in Model.States)
+                            {
+                            <option value="@state.Value"></option>
+                            } *@
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Cities" class="control-label"></label>
+                        <select id="CityId" name="CityId" class="form-control" required>
+                            <option value="">-- Select City --</option>
+                            @* @foreach(var city in Model.Cities)
+                            {
+                            <option value="@city.Value"></option>
+                            } *@
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+@section Scripts {
+    <script>
+        function getStatesByCountry() {
+            var countryId = $("#CountryId").val();
+            $.get("/Employee/GetStatesByCountry?countryId=" + countryId, function (data) {
+                $("#StateId").empty();
+                $("#StateId").append("<option value=''>-- Select State --</option>");
+                $.each(data, function (i, item) {
+                    $("#StateId").append("<option value='" + item.value + "'>" + item.text + "</option>");
+                });
+            });
+        }
+
+        function getCitiesByState() {
+            var stateId = $("#StateId").val();
+            $.get("/Employee/GetCitiesByState?stateId=" + stateId, function (data) {
+                $("#CityId").empty();
+                $("#CityId").append("<option value=''>-- Select City --</option>");
+                $.each(data, function (i, item) {
+                    $("#CityId").append("<option value='" + item.value + "'>" + item.text + "</option>");
+                });
+            });
+        }
+    </script>
+}
