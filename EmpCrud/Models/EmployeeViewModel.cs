@@ -26,5 +26,5 @@ public class EmployeeViewModel
     public List<string> EmpHobbies { get; set; }
     //public List<int> SelectedHobbies { get; set; }
 
-    public Employee Employee { get; set; }
+    //public Employee Employee { get; set; }
 }
